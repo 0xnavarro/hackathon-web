@@ -16,6 +16,25 @@ interface EarthProps {
   glowColor?: [number, number, number];
 }
 
+interface GlobeProps {
+  width?: number;
+  height?: number;
+  colors?: {
+    globeColor: string;
+    markerColor: string;
+    glowColor: string;
+    backgroundColor: string;
+  };
+}
+
+interface MarkerData {
+  location: {
+    lat: number;
+    lng: number;
+  };
+  size: number;
+}
+
 const Earth: React.FC<EarthProps> = ({
   className,
   theta = 0.3,
@@ -88,6 +107,11 @@ const Earth: React.FC<EarthProps> = ({
       <div className="pointer-events-none absolute inset-0 rounded-full bg-blue-500/10 blur-3xl"></div>
     </div>
   );
+};
+
+const handleMarkerClick = (marker: MarkerData) => {
+  // Handle marker click
+  console.log('Marker clicked:', marker);
 };
 
 export default Earth; 

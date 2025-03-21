@@ -334,6 +334,10 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
     }
   }, [spline, isInView, initialAnimation, handleMouseMove])
 
+  const handleMouseMoveWrapper = useCallback((e: MouseEvent) => {
+    handleMouseMove(e);
+  }, [handleMouseMove]);
+
   return (
     <div 
       ref={containerRef} 
