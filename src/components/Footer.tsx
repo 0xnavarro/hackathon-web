@@ -142,11 +142,11 @@ const Footer = () => {
         
         <div className="border-t border-white/5 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <p className="text-gray-500 text-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full justify-center md:justify-start">
+              <p className="text-gray-500 text-sm text-center md:text-left">
                 © {new Date().getFullYear()} The Global Ultimate Hackathon. All rights reserved.
               </p>
-              <div className="text-gray-500 text-sm flex items-center">
+              <div className="text-gray-500 text-sm flex items-center justify-center">
                 <span>made by</span>
                 <Link 
                   href="https://x.com/0xnavarro"

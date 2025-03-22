@@ -67,9 +67,14 @@ const Header = () => {
                 LARGEST
               </motion.span> 
               <motion.span 
-                className="text-white ml-1"
+                className="text-white ml-1 hidden md:inline"
               >
                 HACKATHON IN HISTORY
+              </motion.span>
+              <motion.span 
+                className="text-white ml-1 md:hidden"
+              >
+                HACKATHON
               </motion.span>
             </motion.span>
           </Link>
@@ -160,14 +165,24 @@ const Header = () => {
                   <Link 
                     href={item.href}
                     className={`text-center py-2 block ${item.isButton 
-                      ? 'gradient-border rounded-full font-bold bg-black hover:bg-black/80 transition-all text-white' 
+                      ? 'rounded-full font-bold transition-all text-white px-6 py-3 mx-auto max-w-[200px] relative overflow-hidden group' 
                       : 'text-white hover:text-[#00ffcc] transition-colors'
                     }`}
                     onClick={() => setIsOpen(false)}
                     target={item.isButton ? "_blank" : undefined}
                     rel={item.isButton ? "noopener noreferrer" : undefined}
                   >
-                    {item.name}
+                    {item.isButton ? (
+                      <>
+                        <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-[#00ffcc] via-[#7000ff] to-[#ff00c3] font-bold text-lg">
+                          {item.name}
+                        </span>
+                        <span className="absolute inset-0 bg-black border border-[#00ffcc]/30 rounded-full group-hover:border-[#00ffcc]/60 transition-all duration-300"></span>
+                        <span className="absolute inset-0 bg-gradient-to-r from-[#00ffcc]/10 via-[#7000ff]/10 to-[#ff00c3]/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+                      </>
+                    ) : (
+                      item.name
+                    )}
                   </Link>
                 </motion.div>
               ))}

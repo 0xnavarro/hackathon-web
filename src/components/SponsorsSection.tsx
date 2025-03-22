@@ -292,60 +292,65 @@ const SponsorsSection = () => {
         <div className="absolute w-[400px] h-[400px] rounded-full bg-[#ff00c3]/5 blur-[80px] top-[40%] right-[25%]"></div>
       </ParallaxLayer>
       
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <ParallaxLayer depth={0.2} speed={0.8}>
-            <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-6">
-              Our <span className="gradient-text">Sponsors</span>
-            </h2>
-          </ParallaxLayer>
+      <div className="container mx-auto px-4 z-10 relative">
+        <div className="flex flex-col items-center justify-center mb-10">
+          <motion.span
+            className="inline-block text-xl md:text-2xl font-bold px-6 py-2 rounded-full border border-[#00ffcc]/30 mb-6 relative overflow-hidden"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-[#00ffcc] via-[#7000ff] to-[#ff00c3]">
+              POWERING THIS HACKATHON
+            </span>
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-md -z-5"></div>
+          </motion.span>
           
-          <ParallaxLayer depth={0.1} speed={0.5}>
-            <p className="text-xl max-w-3xl mx-auto text-gray-300 mb-8">
-              Thank you to our amazing sponsors who make this hackathon possible
-            </p>
-          </ParallaxLayer>
-
-          {/* Buscador */}
-          <div className="flex justify-center items-center mb-12">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-center">
+            Our <span className="gradient-text">Sponsors</span>
+          </h2>
+          
+          <p className="text-xl text-center max-w-3xl text-gray-300 mb-10">
+            Leading companies supporting the next generation of innovation
+          </p>
+          
+          {/* Campo de búsqueda */}
+          <div className="w-full max-w-md mx-auto mb-12">
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search sponsor..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-[#7000ff]/30 text-white placeholder-gray-400 outline-none w-full md:w-60 focus:border-[#00ffcc]/60 transition-all duration-300"
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search sponsors..."
+                className="w-full bg-black/40 border border-[#7000ff]/30 rounded-full px-5 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#00ffcc]/50"
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Vista de cuadrícula para todos los patrocinadores */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto mb-12">
-          {filteredSponsors.map((sponsor, index) => renderSponsorCard(sponsor, index))}
         </div>
+        
+        {/* Grid de patrocinadores con scroll interno en móvil */}
+        <div className="overflow-y-auto overflow-x-hidden max-h-[50vh] md:max-h-none md:overflow-visible pb-6 px-2 scroll-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto mb-12">
+            {filteredSponsors.map((sponsor, index) => renderSponsorCard(sponsor, index))}
+          </div>
 
-        {/* Mensaje si no se encuentran patrocinadores */}
-        {filteredSponsors.length === 0 && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center text-gray-400 my-12"
-          >
-            No sponsors found matching the search criteria.
-          </motion.p>
-        )}
+          {/* Mensaje si no se encuentran patrocinadores */}
+          {filteredSponsors.length === 0 && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-gray-400 my-12"
+            >
+              No sponsors found matching the search criteria.
+            </motion.p>
+          )}
+        </div>
       </div>
       
       {/* Modal de detalles del patrocinador */}

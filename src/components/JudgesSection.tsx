@@ -262,7 +262,7 @@ const JudgesSection = () => {
 
         {/* Nueva visualización de jueces más profesional con carrusel de 2 filas */}
         <div className="w-full h-[65vh] flex flex-col">
-          <div className="flex-1 overflow-y-auto hide-scrollbar px-2 py-2 overflow-x-hidden">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 scroll-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 auto-rows-min mt-6">
               {judges.map((judge, index) => (
                 <motion.div
