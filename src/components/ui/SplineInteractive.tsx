@@ -18,24 +18,47 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
   const [initialAnimation, setInitialAnimation] = useState(true)
   const [wasInView, setWasInView] = useState(false)
   const [isSplineVisible, setIsSplineVisible] = useState(false)
+  const [quality, setQuality] = useState<'low'|'medium'|'high'>('medium')
+  const [fpsLimited, setFpsLimited] = useState(false)
+  const lastFrameTime = useRef(0)
+  const animationFrameId = useRef<number | null>(null)
+  const throttleTime = useRef(16) // ~60fps por defecto
 
-  // Detector para saber si el componente está visible en el viewport - con umbral más alto
-  const isInView = useInView(containerRef, { amount: 0.7 })
+  // Detector para saber si el componente está visible en el viewport - umbral reducido para descargar antes
+  const isInView = useInView(containerRef, { amount: 0.5 })
   
-  // Optimización: Solo mostrar Spline cuando es visible
+  // Optimización: Detectar si el dispositivo es de baja potencia
   useEffect(() => {
-    // Añadimos un pequeño retraso para no entrar en ciclos de carga/descarga
+    // Detectar dispositivos con posible hardware limitado
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    const pixelRatio = window.devicePixelRatio || 1
+    
+    // Ajustar calidad basado en heurísticas del dispositivo
+    if (isMobile || pixelRatio < 1.5) {
+      setQuality('low')
+      throttleTime.current = 33 // ~30fps para dispositivos de menor potencia
+      setFpsLimited(true)
+    } else if (pixelRatio >= 3) {
+      // Dispositivo de alta densidad, pero limitamos igualmente
+      setQuality('medium')
+      throttleTime.current = 24 // ~42fps 
+      setFpsLimited(true)
+    }
+  }, [])
+  
+  // Optimización: Solo mostrar Spline cuando es visible y con retraso para evitar carga/descarga frecuente
+  useEffect(() => {
+    // Si entra en viewport
     if (isInView) {
       const timer = setTimeout(() => {
         setIsSplineVisible(true);
       }, 300);
       return () => clearTimeout(timer);
     } else {
+      // Si sale del viewport, damos más tiempo antes de descargar
       const timer = setTimeout(() => {
-        // No ocultamos Spline inmediatamente para evitar parpadeos
-        // en scroll rápido
-        setIsSplineVisible(isInView);
-      }, 1000);
+        setIsSplineVisible(false);
+      }, 2000); // Tiempo aumentado para evitar carga/descarga en scrolls rápidos
       return () => clearTimeout(timer);
     }
   }, [isInView]);
@@ -51,6 +74,15 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
     }
     setWasInView(isInView)
   }, [isInView, spline])
+  
+  // Cleanup para asegurar que se cancela cualquier animationFrame pendiente
+  useEffect(() => {
+    return () => {
+      if (animationFrameId.current !== null) {
+        cancelAnimationFrame(animationFrameId.current)
+      }
+    }
+  }, [])
   
   // Función para reiniciar el robot
   const resetRobot = useCallback(() => {
@@ -127,14 +159,113 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
       app.setVariable('mouseX', 0.5)
       app.setVariable('mouseY', 0.5)
       
-      // Optimización: Reducir calidad para mejorar rendimiento
-      // @ts-expect-error - Parámetros no documentados
-      if (app.renderer) {
-        // @ts-expect-error - Intentamos acceder a parámetros internos para optimizar
-        app.renderer.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1))
+      // Optimización avanzada de rendimiento WebGL
+      try {
+        // Usamos aserción de tipo para acceder a las propiedades internas
+        const rendererAccessor = app as unknown as { 
+          renderer?: { 
+            setPixelRatio: (ratio: number) => void;
+            getContext: () => WebGLRenderingContext;
+            shadowMap?: { enabled: boolean };
+            toneMapping?: number;
+          } 
+        };
+        
+        if (rendererAccessor.renderer) {
+          const renderer = rendererAccessor.renderer;
+          
+          // Reducir resolución según nivel de calidad
+          const pixelRatioMap = {
+            'low': 0.5,    // 50% de la resolución nativa
+            'medium': 0.75, // 75% de la resolución nativa
+            'high': 1.0     // Resolución nativa
+          };
+          
+          if (typeof renderer.setPixelRatio === 'function') {
+            renderer.setPixelRatio(Math.min(pixelRatioMap[quality], window.devicePixelRatio || 1));
+          }
+          
+          // Optimizaciones adicionales de WebGL si están disponibles
+          if (typeof renderer.getContext === 'function') {
+            const gl = renderer.getContext();
+            
+            // Priorizar rendimiento sobre calidad
+            if (quality === 'low' || quality === 'medium') {
+              // Reducir precisión en shaders para mejorar rendimiento
+              const ext = gl.getExtension('WEBGL_debug_renderer_info');
+              if (ext) {
+                // Verificar si es una GPU integrada para optimizar aún más
+                const gpu = gl.getParameter(ext.UNMASKED_RENDERER_WEBGL);
+                const isIntegratedGPU = /(Intel|HD Graphics|UHD Graphics|Iris)/i.test(gpu);
+                
+                if (isIntegratedGPU) {
+                  // Forzar modo de bajo rendimiento para GPUs integradas
+                  setQuality('low');
+                  throttleTime.current = 33; // 30fps máximo
+                  setFpsLimited(true);
+                }
+              }
+            }
+            
+            if (renderer.shadowMap) {
+              // Desactivar sombras en modo de baja calidad
+              if (quality === 'low') renderer.shadowMap.enabled = false;
+            }
+            
+            if (quality === 'low' && renderer.toneMapping !== undefined) {
+              // Uso de tone mapping más simple
+              renderer.toneMapping = 0; // NoToneMapping (0) es el más ligero
+            }
+          }
+        }
+        
+        // Optimizar físicas, nivel de detalle y animaciones
+        const physicsAccessor = app as unknown as { 
+          physics?: { fixedDeltaTime: number }; 
+          scene?: { 
+            traverse?: (callback: (object: {
+              type?: string;
+              material?: {
+                roughness?: number;
+                metalness?: number;
+                envMapIntensity?: number;
+                [key: string]: unknown;
+              };
+              [key: string]: unknown;
+            }) => void) => void;
+          }
+        };
+        
+        if (physicsAccessor.physics) {
+          // Reducir precisión de físicas
+          physicsAccessor.physics.fixedDeltaTime = quality === 'low' ? 1/30 : 1/60;
+        }
+        
+        if (physicsAccessor.scene && typeof physicsAccessor.scene.traverse === 'function') {
+          // Bajar nivel de detalle para modelos
+          physicsAccessor.scene.traverse((object) => {
+            if (object && object.type === 'Mesh' && object.material) {
+              // Reducir calidad de materiales
+              if (quality === 'low') {
+                // Apagar efectos costosos
+                if (typeof object.material.roughness !== 'undefined') {
+                  object.material.roughness = 1.0; // Apagar reflexiones
+                }
+                if (typeof object.material.metalness !== 'undefined') {
+                  object.material.metalness = 0.0; // Apagar efectos metálicos
+                }
+                if (typeof object.material.envMapIntensity !== 'undefined') {
+                  object.material.envMapIntensity = 0.0; // Desactivar mapas de entorno
+                }
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.warn('No se pudieron aplicar optimizaciones a WebGL/físicas/materiales:', err);
       }
     } catch (err) {
-      console.warn('No se pudo optimizar el renderizado:', err)
+      console.warn('No se pudo optimizar el renderizado:', err);
     }
     
     // Listamos todos los objetos en la escena para identificar cuáles podemos manipular
@@ -183,11 +314,24 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
     } catch (error) {
       console.error('Error al explorar la escena:', error)
     }
-  }, [])
+  }, [quality])
   
-  // Función para manejar el movimiento del ratón directamente con Spline
+  // Función para manejar el movimiento del ratón directamente con Spline (ahora con limitación de FPS)
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!spline || !containerRef.current || !isInView || initialAnimation) return
+    
+    // Limitador de FPS opcional para reducir carga
+    if (fpsLimited) {
+      const now = performance.now()
+      const elapsed = now - lastFrameTime.current
+      
+      if (elapsed < throttleTime.current) {
+        // No ha pasado suficiente tiempo entre fotogramas
+        return
+      }
+      
+      lastFrameTime.current = now
+    }
     
     const rect = containerRef.current.getBoundingClientRect()
     
@@ -219,48 +363,63 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
     }
     
     try {
-      // Actualizar las variables en Spline con una tasa limitada (throttling)
-      // para reducir actualizaciones excesivas
-      spline.setVariable('mouseX', normalizedX)
-      spline.setVariable('mouseY', normalizedY)
-      
-      // Si encontramos algún objeto específico, podemos manipularlo directamente
-      if (objectNames.length > 0) {
-        // Buscar cualquier objeto que pueda ser interactivo
-        const targets = objectNames.filter(name => 
-          name.toLowerCase().includes('robot') || 
-          name.toLowerCase().includes('character') || 
-          name.toLowerCase().includes('figure') ||
-          name.toLowerCase().includes('3d') ||
-          name.toLowerCase().includes('object')
-        )
-        
-        targets.forEach(targetName => {
-          const object = spline.findObjectByName(targetName)
-          if (object) {
-            // Intentar diferentes formas de interacción
-            try { 
-              // Emitir evento look-at o follow
-              spline.emitEvent('lookAt', targetName) 
-            } catch {}
-            
-            try {
-              // Actualizar propiedades directas del objeto
-              // CORRECCIÓN: El problema principal estaba aquí, el robot miraba hacia arriba
-              // porque el eje x estaba invertido incorrectamente. Corregimos las rotaciones:
-              object.rotation.y = (normalizedX - 0.5) * 2.5 // Rotación horizontal
-              
-              // Invertir la rotación en el eje X para que mire correctamente al cursor 
-              // y no hacia arriba constantemente - valor negativo para que mire hacia abajo
-              object.rotation.x = -(normalizedY - 0.5) * 1.5 // Rotación vertical corregida
-            } catch {}
-          }
-        })
+      // Usamos requestAnimationFrame para sincronizar con la tasa de refresco y reducir carga
+      if (animationFrameId.current !== null) {
+        cancelAnimationFrame(animationFrameId.current)
       }
+      
+      animationFrameId.current = requestAnimationFrame(() => {
+        // Actualizar las variables en Spline 
+        try {
+          spline.setVariable('mouseX', normalizedX)
+          spline.setVariable('mouseY', normalizedY)
+        } catch {}
+        
+        // Si encontramos algún objeto específico, podemos manipularlo directamente
+        if (objectNames.length > 0) {
+          // Buscar cualquier objeto que pueda ser interactivo
+          const targets = objectNames.filter(name => 
+            name.toLowerCase().includes('robot') || 
+            name.toLowerCase().includes('character') || 
+            name.toLowerCase().includes('figure') ||
+            name.toLowerCase().includes('3d') ||
+            name.toLowerCase().includes('object')
+          )
+          
+          // Aplicar rotación solo al primer objeto encontrado para reducir cálculos
+          // y mejorar rendimiento (en vez de hacer forEach)
+          if (targets.length > 0) {
+            const targetName = targets[0]
+            const object = spline.findObjectByName(targetName)
+            
+            if (object) {
+              // Rotación más suave y con menor rango para mejorar rendimiento
+              // Reducimos la intensidad del movimiento para calidad baja o media
+              const intensityMap = {
+                'low': 0.6,
+                'medium': 0.8,
+                'high': 1.0
+              }
+              const intensity = intensityMap[quality]
+              
+              try {
+                // Reducimos los ángulos de rotación para cálculos más ligeros
+                const rotationY = (normalizedX - 0.5) * 2.0 * intensity
+                const rotationX = -(normalizedY - 0.5) * 1.0 * intensity
+                
+                object.rotation.y = rotationY
+                object.rotation.x = rotationX
+              } catch {}
+            }
+          }
+        }
+        
+        animationFrameId.current = null
+      })
     } catch (error) {
       console.error('Error al actualizar con posición del ratón:', error)
     }
-  }, [spline, objectNames, isInView, initialAnimation])
+  }, [spline, objectNames, isInView, initialAnimation, quality, fpsLimited])
   
   // Efecto para terminar la animación inicial después de un tiempo
   useEffect(() => {
@@ -274,12 +433,11 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
     }
   }, [spline, isInView])
   
-  // Optimización: Limitar la frecuencia de actualización del mouse
-  // Implementamos throttling para reducir llamadas y mejorar rendimiento
+  // Optimización: Limitar la frecuencia de actualización del mouse con un throttle más avanzado
   const throttleMouseMove = useCallback((fn: (e: Event) => void, delay: number) => {
     let lastCall = 0;
     return function(e: Event) {
-      const now = Date.now();
+      const now = performance.now();
       if (now - lastCall >= delay) {
         fn(e);
         lastCall = now;
@@ -289,15 +447,17 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
   
   // Configurar el event listener para el movimiento del ratón
   useEffect(() => {
-    // Aplicamos throttling a 60fps (16ms) para reducir carga
+    // Aplicamos throttling adaptativo según la calidad
+    const throttleDelay = quality === 'low' ? 50 : (quality === 'medium' ? 33 : 16);
+    
     const throttledMouseMove = throttleMouseMove((e: Event) => {
       if (e instanceof MouseEvent) {
         handleMouseMove(e);
       }
-    }, 16);
+    }, throttleDelay);
     
-    // Usar document para capturar eventos en toda la página
-    document.addEventListener('mousemove', throttledMouseMove);
+    // Usar passive para mejorar rendimiento
+    document.addEventListener('mousemove', throttledMouseMove, { passive: true });
     
     // También detectar scroll para actualizar la posición del robot
     const handleScroll = () => {
@@ -311,16 +471,21 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
       }
     }
     
-    // Aplicar throttling también al evento de scroll
-    const throttledScroll = throttleMouseMove(handleScroll, 100);
+    // Throttle de scroll más agresivo ya que no es tan crítico
+    const throttledScroll = throttleMouseMove(handleScroll, 200);
     
     window.addEventListener('scroll', throttledScroll, { passive: true });
     
     return () => {
       document.removeEventListener('mousemove', throttledMouseMove);
       window.removeEventListener('scroll', throttledScroll);
+      
+      // Limpiar cualquier animationFrame pendiente
+      if (animationFrameId.current !== null) {
+        cancelAnimationFrame(animationFrameId.current)
+      }
     }
-  }, [handleMouseMove, isInView, spline, initialAnimation, throttleMouseMove]);
+  }, [handleMouseMove, isInView, spline, initialAnimation, throttleMouseMove, quality]);
   
   // Simular un evento de ratón en el centro cuando se muestra la sección
   useEffect(() => {
@@ -333,10 +498,6 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
       handleMouseMove(fakeEvent)
     }
   }, [spline, isInView, initialAnimation, handleMouseMove])
-
-  const handleMouseMoveWrapper = useCallback((e: MouseEvent) => {
-    handleMouseMove(e);
-  }, [handleMouseMove]);
 
   return (
     <div 
@@ -354,10 +515,10 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
         {/* Carga condicional de Spline para conservar recursos */}
         {isSplineVisible && (
           <Spline
-          scene={scene}
-          onLoad={handleLoad}
+            scene={scene}
+            onLoad={handleLoad}
             style={{ width: '100%', height: '100%' }}
-        />
+          />
         )}
       </div>
     </div>

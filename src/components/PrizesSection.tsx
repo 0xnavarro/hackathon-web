@@ -171,7 +171,7 @@ const PrizesSection = () => {
       {/* Background Robot 3D - Se añade como una capa entre el fondo y las tarjetas */}
       <div className="absolute inset-0 z-[1] pointer-events-auto w-full h-full overflow-visible">
         <SplineInteractive 
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode?event-trigger=on"
+          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode?event-trigger=on&quality=low"
           className="w-full h-full"
         />
       </div>
