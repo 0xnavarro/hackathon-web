@@ -23,9 +23,28 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
   const lastFrameTime = useRef(0)
   const animationFrameId = useRef<number | null>(null)
   const throttleTime = useRef(16) // ~60fps por defecto
+  const [isLargeScreen, setIsLargeScreen] = useState(false)
 
   // Detector para saber si el componente está visible en el viewport - umbral reducido para descargar antes
   const isInView = useInView(containerRef, { amount: 0.5 })
+  
+  // Detectar si es una pantalla grande
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const isXLarge = window.innerWidth >= 1920 || window.innerHeight >= 1080
+      setIsLargeScreen(isXLarge)
+    }
+    
+    // Comprobar al inicio
+    checkScreenSize()
+    
+    // Actualizar cuando cambie el tamaño de la ventana
+    window.addEventListener('resize', checkScreenSize)
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize)
+    }
+  }, [])
   
   // Optimización: Detectar si el dispositivo es de baja potencia
   useEffect(() => {
@@ -503,7 +522,14 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
     <div 
       ref={containerRef} 
       className={`relative w-full h-full overflow-visible ${className}`}
-      style={{ pointerEvents: 'all' }}
+      style={{ 
+        pointerEvents: 'all',
+        // Ajustar posición para pantallas grandes para evitar recortes
+        ...(isLargeScreen && {
+          transform: 'translateY(10%)', // Elevamos ligeramente el robot en pantallas grandes
+          marginBottom: '-5%' // Compensamos el espacio para evitar crear scroll adicional
+        })
+      }}
     >
       <div className="absolute inset-0 w-full h-full overflow-visible">
         {isLoading && (
@@ -517,10 +543,17 @@ export function SplineInteractive({ scene, className }: SplineInteractiveProps) 
           <Spline
             scene={scene}
             onLoad={handleLoad}
-            style={{ width: '100%', height: '100%' }}
+            style={{ 
+              width: '100%', 
+              height: isLargeScreen ? '110%' : '100%',  // Hacemos el modelo más alto en pantallas grandes
+              marginTop: isLargeScreen ? '-5%' : '0'    // Lo subimos ligeramente para que se vea completo
+            }}
           />
         )}
       </div>
+      
+      {/* Gradiente para evitar que el robot se vea cortado en la parte inferior */}
+      <div className="absolute bottom-0 left-0 right-0 h-[20%] bg-gradient-to-t from-black to-transparent z-[2]"></div>
     </div>
   )
 } 

@@ -160,7 +160,7 @@ const PrizesSection = () => {
   };
 
   return (
-    <ParallaxSection id="prizes" className="py-32 relative overflow-hidden bg-gradient-to-b from-black via-black/95 to-black min-h-screen flex flex-col justify-center">
+    <ParallaxSection id="prizes" className="py-10 md:py-12 xl:py-16 2xl:py-20 relative overflow-hidden bg-gradient-to-b from-black via-black/95 to-black flex flex-col justify-center h-auto min-h-[90vh] xl:min-h-screen">
       <div id="scroll-indicator" className="hidden">
         <ScrollIndicator 
           count={4} 
@@ -169,11 +169,13 @@ const PrizesSection = () => {
       </div>
       
       {/* Background Robot 3D - Se añade como una capa entre el fondo y las tarjetas */}
-      <div className="absolute inset-0 z-[1] pointer-events-auto w-full h-full overflow-visible">
+      <div className="absolute inset-0 z-[1] pointer-events-auto w-full h-full overflow-visible spline-container">
         <SplineInteractive 
           scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode?event-trigger=on&quality=low"
-          className="w-full h-full"
+          className="w-full h-full xl:scale-[1.15] 2xl:scale-[1.3] 3xl:scale-[1.5]"
         />
+        {/* Gradiente para evitar que el robot se vea cortado en la parte inferior */}
+        <div className="absolute bottom-0 left-0 right-0 h-[15%] bg-gradient-to-t from-black to-transparent z-[3]"></div>
       </div>
       
       {/* Fondo con spotlight y efectos */}
@@ -182,7 +184,7 @@ const PrizesSection = () => {
         <Spotlight
           size={1200}
           fill="rgba(111, 63, 245, 0.65)" 
-          className="z-[2]"
+          className="z-[4]"
           springOptions={{ 
             bounce: 0.2, 
             damping: 20, 
@@ -216,17 +218,17 @@ const PrizesSection = () => {
       
       <div className="absolute inset-0 bg-grid-pattern opacity-5 z-1"></div>
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 max-w-full sm:max-w-7xl xl:max-w-[1500px] 2xl:max-w-[1800px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12"
+          className="text-center mb-2 sm:mb-3 md:mb-4"
         >
           <ParallaxLayer depth={0.2} speed={1.2} className="inline-block">
             <motion.span
-              className="inline-block text-xl md:text-2xl font-bold px-6 py-2 rounded-full border border-purple-500/30 mb-6 relative overflow-hidden"
+              className="inline-block text-base sm:text-lg md:text-xl font-bold px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-purple-500/30 mb-2 sm:mb-3 relative overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -240,7 +242,7 @@ const PrizesSection = () => {
           </ParallaxLayer>
           
           <ParallaxLayer depth={0.3} speed={0.8} className="block">
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold mb-2 sm:mb-3">
               <span className="gradient-text inline-block">$1M+</span>{' '}
               <span className="text-white">in Prizes</span>
             </h2>
@@ -248,7 +250,7 @@ const PrizesSection = () => {
           
           <ParallaxLayer depth={0.1} speed={0.6} className="block mx-auto max-w-3xl">
             <motion.p 
-              className="text-xl md:text-2xl text-gray-300"
+              className="text-sm sm:text-base md:text-lg text-gray-300 px-2"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -271,7 +273,7 @@ const PrizesSection = () => {
           className="w-full max-w-5xl mx-auto"
         >
           {/* Primeros 3 premios que siempre se muestran */}
-          <div ref={firstThreePrizesRef} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+          <div ref={firstThreePrizesRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 xl:gap-6 2xl:gap-8 mb-2 sm:mb-3 prize-container">
             {prizes.slice(0, 3).map((prize) => (
               <motion.div
                 key={prize.title}
@@ -281,38 +283,38 @@ const PrizesSection = () => {
                 className="perspective-1000"
               >
                 <Card3D 
-                  depth={15}
+                  depth={10}  // Restaurado a valor original para mejor efecto 3D
                   glare={true}
                   borderColor={`border-[${prize.colorFrom}]/30`}
                   glowColor={`after:bg-[${prize.colorFrom}]/10`}
-                  className="h-full backdrop-blur-sm z-10 transform-gpu"
+                  className="h-full backdrop-blur-sm z-10 transform-gpu card-3d-container"
                 >
                   <div className="relative p-[2px] rounded-2xl overflow-hidden h-full">
                     <div 
                       className="absolute inset-0 rounded-2xl opacity-90"
                       style={{ backgroundImage: `linear-gradient(to bottom right, ${prize.colorFrom}, ${prize.colorTo})` }} 
                     />
-                    <div className="relative bg-black/80 backdrop-blur-md rounded-2xl p-6 h-full flex flex-col">
-                      <div className="flex items-center mb-4">
+                    <div className="relative bg-black/80 backdrop-blur-md rounded-2xl p-2 sm:p-3 md:p-4 xl:p-5 2xl:p-6 h-full flex flex-col">
+                      <div className="flex items-center mb-1 sm:mb-2">
                         <div 
-                          className="p-3 rounded-full mr-4"
+                          className="p-1 sm:p-1.5 xl:p-2 rounded-full mr-2"
                           style={{ color: prize.colorFrom }}
                         >
                           {prize.icon}
                         </div>
-                        <h3 className="text-xl font-bold text-white">{prize.title}</h3>
+                        <h3 className="text-sm sm:text-base md:text-lg xl:text-xl 2xl:text-2xl font-bold text-white">{prize.title}</h3>
                       </div>
                       
                       <p 
-                        className="text-4xl font-bold mb-4"
+                        className="text-xl sm:text-2xl md:text-3xl xl:text-4xl 2xl:text-5xl font-bold mb-1 sm:mb-2"
                         style={{ color: prize.colorFrom, textShadow: `0 0 10px ${prize.colorFrom}40` }}
                       >
                         {prize.amount}
                       </p>
-                      <p className="text-gray-200 flex-grow text-sm">{prize.description}</p>
+                      <p className="text-gray-200 flex-grow text-xs sm:text-sm xl:text-base 2xl:text-lg">{prize.description}</p>
                       
                       <motion.div 
-                        className="h-1 w-full mt-4 rounded-full"
+                        className="h-1 w-full mt-1 sm:mt-2 rounded-full"
                         style={{ backgroundImage: `linear-gradient(to right, ${prize.colorFrom}, ${prize.colorTo})` }}
                         initial={{ width: "0%" }}
                         whileInView={{ width: "100%" }}
@@ -327,10 +329,10 @@ const PrizesSection = () => {
           </div>
 
           {prizes.length > 3 && (
-            <div className="text-center mt-6">
+            <div className="text-center mt-2 sm:mt-3">
               <motion.button
                 onClick={handleShowAllPrizes}
-                className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-colors"
+                className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-colors text-xs sm:text-sm"
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -345,9 +347,9 @@ const PrizesSection = () => {
           isOpen={showAllPrizesModal} 
           onClose={handleCloseModal}
           title="All Hackathon Prizes"
-          maxWidth="max-w-7xl"
+          maxWidth="max-w-[95%] sm:max-w-4xl md:max-w-6xl lg:max-w-7xl"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 xl:gap-6 p-2 max-h-[70vh] overflow-y-auto prize-container">
             {prizes.map((prize, index) => (
               <motion.div
                 key={prize.title}
@@ -358,38 +360,38 @@ const PrizesSection = () => {
                 className="perspective-1000"
               >
                 <Card3D 
-                  depth={10}
+                  depth={10}  // Restaurado a valor original en el modal también
                   glare={true}
                   borderColor={`border-[${prize.colorFrom}]/30`}
                   glowColor={`after:bg-[${prize.colorFrom}]/10`}
-                  className="h-full backdrop-blur-sm z-10 transform-gpu"
+                  className="h-full backdrop-blur-sm z-10 transform-gpu card-3d-container"
                 >
                   <div className="relative p-[2px] rounded-2xl overflow-hidden h-full">
                     <div 
                       className="absolute inset-0 rounded-2xl opacity-90"
                       style={{ backgroundImage: `linear-gradient(to bottom right, ${prize.colorFrom}, ${prize.colorTo})` }} 
                     />
-                    <div className="relative bg-black/80 backdrop-blur-md rounded-2xl p-6 h-full flex flex-col">
-                      <div className="flex items-center mb-4">
+                    <div className="relative bg-black/80 backdrop-blur-md rounded-2xl p-2 sm:p-3 md:p-4 xl:p-5 h-full flex flex-col">
+                      <div className="flex items-center mb-1 sm:mb-2">
                         <div 
-                          className="p-3 rounded-full mr-4"
+                          className="p-1 sm:p-1.5 xl:p-2 rounded-full mr-2"
                           style={{ color: prize.colorFrom }}
                         >
                           {prize.icon}
                         </div>
-                        <h3 className="text-xl font-bold text-white">{prize.title}</h3>
+                        <h3 className="text-sm sm:text-base md:text-lg xl:text-xl font-bold text-white">{prize.title}</h3>
                       </div>
                       
                       <p 
-                        className="text-4xl font-bold mb-4"
+                        className="text-xl sm:text-2xl md:text-3xl xl:text-4xl font-bold mb-1 sm:mb-2"
                         style={{ color: prize.colorFrom, textShadow: `0 0 10px ${prize.colorFrom}40` }}
                       >
                         {prize.amount}
                       </p>
-                      <p className="text-gray-200 flex-grow text-sm">{prize.description}</p>
+                      <p className="text-gray-200 flex-grow text-xs sm:text-sm xl:text-base">{prize.description}</p>
                       
                       <motion.div 
-                        className="h-1 w-full mt-4 rounded-full"
+                        className="h-1 w-full mt-1 sm:mt-2 rounded-full"
                         style={{ backgroundImage: `linear-gradient(to right, ${prize.colorFrom}, ${prize.colorTo})` }}
                         initial={{ width: "0%" }}
                         whileInView={{ width: "100%" }}
@@ -402,10 +404,10 @@ const PrizesSection = () => {
             ))}
           </div>
           
-          <div className="mt-8 text-center">
+          <div className="mt-3 sm:mt-4 text-center">
             <motion.button
               onClick={handleCloseModal}
-              className="px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-colors"
+              className="px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium transition-colors text-xs sm:text-sm"
               whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
               whileTap={{ scale: 0.95 }}
             >
@@ -414,23 +416,23 @@ const PrizesSection = () => {
           </div>
         </Modal>
 
-        <ParallaxLayer depth={0.15} speed={0.7} className="mt-10 w-full">
+        <ParallaxLayer depth={0.15} speed={0.7} className="mt-3 sm:mt-4 md:mt-5 w-full">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-center bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-8 rounded-3xl backdrop-blur-md border border-white/10"
+            className="text-center bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl backdrop-blur-md border border-white/10"
           >
             <div className="absolute inset-0 opacity-10 mix-blend-overlay rounded-3xl"></div>
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">Ready to Join the Largest Hackathon in History?</h3>
-            <p className="text-lg md:text-xl text-gray-300 mb-6 max-w-4xl mx-auto">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-bold mb-1 sm:mb-2">Ready to Join the Largest Hackathon in History?</h3>
+            <p className="text-xs sm:text-sm md:text-base xl:text-lg 2xl:text-xl text-gray-300 mb-2 sm:mb-3 max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
               Additional prizes will be announced as more sponsors join the event.
               This is your once-in-a-lifetime opportunity to showcase your talent on the global stage!
             </p>
             <Link href="https://form.typeform.com/to/wf94YwH4" target="_blank" rel="noopener noreferrer">
               <motion.button 
-                className="gradient-button text-xl px-10 py-4 rounded-full font-bold relative overflow-hidden group"
+                className="gradient-button text-xs sm:text-sm md:text-base xl:text-lg 2xl:text-xl px-3 sm:px-4 md:px-6 xl:px-8 py-1.5 sm:py-2 md:py-2.5 xl:py-3 rounded-full font-bold relative overflow-hidden group"
                 whileHover={{ 
                   scale: 1.05, 
                   boxShadow: "0 0 30px rgba(0, 255, 204, 0.6)"

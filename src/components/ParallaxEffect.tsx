@@ -111,14 +111,40 @@ export const Card3D: React.FC<Card3DProps> = ({
   const [showGlare, setShowGlare] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  // Detectar pantallas grandes para ajustar el efecto 3D
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const isXLarge = window.innerWidth >= 1920 || window.innerHeight >= 1080;
+      setIsLargeScreen(isXLarge);
+    };
+    
+    // Comprobar al inicio
+    checkScreenSize();
+    
+    // Actualizar cuando cambie el tamaño de la ventana
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
 
   // Pre-calcular transformaciones basadas en la posición del mouse
   const cardTransform = useMemo(() => {
     const { x, y } = position;
+    
+    // Ajustar la escala para pantallas grandes
+    const hoverScale = isLargeScreen ? 1.03 : 1.05;
+    
+    // Usar transformGPU para mejor rendimiento
     return {
-      transform: `perspective(1000px) rotateX(${y}deg) rotateY(${x}deg) scale3d(${isHovering ? 1.05 : 1}, ${isHovering ? 1.05 : 1}, 1)`,
+      transform: `perspective(${isLargeScreen ? '1500px' : '1000px'}) rotateX(${y}deg) rotateY(${x}deg) scale3d(${isHovering ? hoverScale : 1}, ${isHovering ? hoverScale : 1}, 1)`,
+      WebkitTransform: `perspective(${isLargeScreen ? '1500px' : '1000px'}) rotateX(${y}deg) rotateY(${x}deg) scale3d(${isHovering ? hoverScale : 1}, ${isHovering ? hoverScale : 1}, 1)`,
+      transformStyle: 'preserve-3d' as const,
     };
-  }, [position.x, position.y, isHovering]);
+  }, [position.x, position.y, isHovering, isLargeScreen]);
 
   // Pre-calcular el estilo del destello si está activo
   const glareStyle = useMemo(() => {
@@ -150,9 +176,12 @@ export const Card3D: React.FC<Card3DProps> = ({
     const mouseX = e.clientX - centerX;
     const mouseY = e.clientY - centerY;
     
+    // Ajustar el depth para pantallas grandes para evitar rotaciones extremas
+    const adjustedDepth = isLargeScreen ? Math.min(depth, 15) : depth;
+    
     // Convertir a grados de rotación (con límites)
-    const rotateX = (-mouseY / (rect.height / 2)) * depth;
-    const rotateY = (mouseX / (rect.width / 2)) * depth;
+    const rotateX = (-mouseY / (rect.height / 2)) * adjustedDepth;
+    const rotateY = (mouseX / (rect.width / 2)) * adjustedDepth;
     
     setPosition({ x: rotateY, y: rotateX });
     setShowGlare(true);
@@ -173,7 +202,7 @@ export const Card3D: React.FC<Card3DProps> = ({
   return (
     <div 
       ref={cardRef}
-      className={`relative transition-transform duration-150 overflow-hidden ${className}`}
+      className={`relative transition-transform duration-150 card-overflow-fix ${className}`}
       style={cardTransform}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

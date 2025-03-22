@@ -78,10 +78,11 @@ body {
 
 .snap-section {
   scroll-snap-align: start;
-  scroll-snap-stop: always;
-  height: 100vh; /* Cambiado a height fijo para asegurar el snapping */
+  min-height: 100vh; /* Cambiado a min-height para asegurar que todo el contenido sea visible */
+  height: auto; /* Permitimos que la altura se ajuste al contenido */
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Cambiado a visible para evitar cortes */
+  padding-bottom: 2rem; /* Añadimos padding para evitar que el contenido se corte */
 }
 
 /* Transiciones entre secciones */
@@ -801,4 +802,44 @@ button:focus, a:focus, input:focus, textarea:focus {
   40%, 100% {
     left: 100%;
   }
+}
+
+/* Estilos optimizados para perspectiva 3D en diferentes tamaños de pantalla */
+.perspective-1000 {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  will-change: transform;
+  /* Aseguramos que las tarjetas no se recorten en pantallas grandes */
+  overflow: visible !important;
+}
+
+/* Ajustes específicos para pantallas grandes */
+@media (min-width: 1920px) {
+  .perspective-1000 {
+    perspective: 1500px; /* Aumentamos la perspectiva para pantallas grandes */
+  }
+  
+  /* Permitimos que las tarjetas se expandan sin recortarse */
+  .card-3d-container {
+    overflow: visible !important;
+    transform-style: preserve-3d;
+  }
+  
+  /* Aseguramos que el robot 3D tenga suficiente espacio vertical */
+  .spline-container {
+    height: 110% !important; 
+    margin-top: -5%;
+  }
+  
+  /* Ajustamos la escala para que los premios se vean proporcionados */
+  .prize-container {
+    padding: 2rem 0;
+  }
+}
+
+/* Aseguramos que las tarjetas 3D tengan suficiente espacio */
+.card-overflow-fix {
+  transform: translateZ(0);
+  z-index: 10;
+  overflow: visible !important;
 }
