@@ -236,10 +236,10 @@ const JudgesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-6"
+          className="text-center mb-6 pt-24 md:pt-20"
         >
           <motion.span
-            className="inline-block text-xl md:text-2xl font-bold px-6 py-2 rounded-full border border-purple-500/30 mb-6 relative overflow-hidden"
+            className="inline-block text-xl md:text-2xl font-bold px-6 py-2 rounded-full border border-purple-500/30 mb-6 relative overflow-hidden mt-10"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
