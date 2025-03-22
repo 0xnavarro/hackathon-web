@@ -4,8 +4,34 @@ import { motion } from 'framer-motion';
 import Earth from './globe';
 import { Sparkles } from './sparkles';
 import { SplashCursor } from './ui/splash-cursor';
+import { useEffect, useState } from 'react';
 
 const HeroSection = () => {
+  // Forzar re-render cuando cambia el tamaño de la ventana
+  const [, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  });
+
+  useEffect(() => {
+    // Handler para actualizar el estado
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+    
+    // Añadir event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Llamar handler para establecer el tamaño inicial
+    handleResize();
+    
+    // Eliminar event listener al desmontar
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <section id="hero" className="relative h-screen overflow-hidden bg-[#010114] text-white">
       {/* Efecto fluido - ahora con z-index bajo */}
@@ -48,7 +74,8 @@ const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, delay: 0.2 }}
-          className="absolute left-1/2 top-2/5 z-0 w-full max-w-lg -translate-x-1/2 -translate-y-1/3 md:max-w-xl lg:max-w-2xl xl:max-w-4xl"
+          style={{ zIndex: -1 }}
+          className="absolute left-1/2 top-2/5 w-full max-w-lg -translate-x-1/2 -translate-y-1/3 md:max-w-xl lg:max-w-2xl xl:max-w-4xl"
         >
           <Earth 
             baseColor={[0.1, 0.2, 0.8]}
@@ -64,7 +91,8 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="relative z-10 mt-8 text-center md:mt-10"
+          style={{ zIndex: 50 }}
+          className="relative mt-8 text-center md:mt-10"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
