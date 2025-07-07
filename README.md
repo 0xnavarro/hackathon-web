@@ -15,14 +15,13 @@
 
 ## 🏅 Competition Achievement
 
-- **🏆 Competition**: Bolt.new Hackathon
+- **🏆 Competition**: Bolt.new Hackathon web design
 - **🥈 Result**: Finalist & Prize Winner
 - **💰 Prize**: $500 USD
 - **🎊 Recognition**: Among the top submissions selected by judges
 
 ## ✨ Key Features
 
-- 🤖 **AI-Powered Interface**: Intelligent user interactions and responses
 - 🎨 **Modern Design**: Sleek, responsive UI with cutting-edge aesthetics
 - ⚡ **Performance Optimized**: Fast loading times and smooth animations
 - 📱 **Mobile-First**: Fully responsive design for all devices
