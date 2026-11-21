@@ -1,6 +1,5 @@
-# 🏆 Hackathon Web AI - Bolt.new Competition Winner
+# 🏆 Hackathon Web AI - Bolt.new Competition Finalist
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/12345678-1234-1234-1234-123456789012/deploy-status)](https://app.netlify.com/sites/hackathon-web-ai/deploys)
 [![Next.js](https://img.shields.io/badge/Next.js-13.0-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0-38B2AC)](https://tailwindcss.com/)
