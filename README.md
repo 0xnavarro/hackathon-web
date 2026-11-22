@@ -7,7 +7,7 @@
 
 ## 🎯 Project Overview
 
-**Hackathon Web AI** is a cutting-edge web application that secured a **finalist position** in the prestigious **Bolt.new Competition**, earning a **$500 prize**. This project demonstrates advanced web development skills, innovative AI integration, and modern design principles.
+**Hackathon Web AI** is a cutting-edge web application that secured a **finalist position** in the prestigious **Bolt.new Competition**, earning a **$500 cash prize plus $200 in Bolt credits**. This project demonstrates advanced web development skills, innovative AI integration, and modern design principles.
 
 ### 🌐 Live Demo
 **[👉 View Live Application](https://hackathon-web-ai.netlify.app/)**
@@ -16,7 +16,7 @@
 
 - **🏆 Competition**: Bolt.new Hackathon web design
 - **🥈 Result**: Finalist & Prize Winner
-- **💰 Prize**: $500 USD
+- **💰 Prize**: $500 USD in cash + $200 in Bolt credits
 - **🎊 Recognition**: Among the top submissions selected by judges
 
 ## ✨ Key Features
@@ -120,7 +120,7 @@ While this is a competition project, contributions and feedback are welcome:
 ## 🏆 Awards & Recognition
 
 - **Bolt.new Competition Finalist** - Selected among top submissions
-- **$500 Prize Winner** - Recognized for technical excellence and innovation
+- **$500 cash + $200 Bolt credits** - Prize awarded as a finalist
 - **Judge's Choice** - Highlighted for unique approach and quality implementation
 
 ## 📝 License
